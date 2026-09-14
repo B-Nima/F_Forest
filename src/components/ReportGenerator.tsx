@@ -1,14 +1,8 @@
 import { useState } from 'react';
 import * as XLSX from 'xlsx';
 import { jsPDF } from 'jspdf';
-import 'jspdf-autotable';
+import autoTable from 'jspdf-autotable';
 import { analysisResults, summaryStats, fireBoundaries } from '../data/fireData';
-
-declare module 'jspdf' {
-  interface jsPDF {
-    autoTable: (options: any) => jsPDF;
-  }
-}
 
 export default function ReportGenerator() {
   const [generating, setGenerating] = useState<string | null>(null);
@@ -110,7 +104,7 @@ export default function ReportGenerator() {
       doc.text(`Пострадавший лес: ${summaryStats.totalForestAffected} га`, 15, 64);
 
       // Таблица анализа
-      doc.autoTable({
+      autoTable(doc, {
         startY: 72,
         head: [['Выдел', 'Порода', 'Возраст. группа', 'Площадь, га', '% выдела', 'Пожар']],
         body: analysisResults.map(r => [
@@ -124,7 +118,7 @@ export default function ReportGenerator() {
       });
 
       // Карта-схема (имитация)
-      const mapY = (doc as any).lastAutoTable.finalY + 10;
+      const mapY = (doc as any).lastAutoTable?.finalY ? (doc as any).lastAutoTable.finalY + 10 : 120;
       doc.setFontSize(12);
       doc.setTextColor(0);
       doc.text('Схема расположения пожаров:', 15, mapY);
